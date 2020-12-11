@@ -10,6 +10,23 @@ def terminate():
     sys.exit()
 
 
+class Button(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__(groups.all_sprites)
+        self.image = pygame.Surface([400, 50])
+        self.image.fill((100, 0, 100))
+        self.rect = self.image.get_rect()
+        self.x, self.y = x, y
+        self.rect = [x, y]
+
+    def update(self):
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                print(event.pos)
+                if event.pos[0] - self.x <= 400 and event.pos[1] - self.y <= 50:
+                    terminate()
+
+
 class Main:
     def __init__(self, screen):
         self.screen = screen
