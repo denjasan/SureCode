@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 
+
 def name():
     pygame.init()
     screen = pygame.display.set_mode((480, 360))
@@ -23,6 +24,7 @@ def name():
         rect.center = screen.get_rect().center
         screen.blit(block, rect)
         pygame.display.flip()
+
 
 if __name__ == "__main__":
     name()
