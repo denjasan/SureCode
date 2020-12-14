@@ -74,3 +74,6 @@ if __name__ == '__main__':
     scr = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     # screen = pygame.display.set_mode((1920, 1080))
     game = Main(scr)
+
+
+
