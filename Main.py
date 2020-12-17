@@ -3,12 +3,17 @@
 # en: here are the main functions for searching for malicious code elements
 
 
-def main(name='data/files_to_check/input.py', xss_on=True, sqli_on=True):
-    file = open(name, 'r')
+def main(file_name='data/files_to_check/input.py', xss_on=True, sqli_on=True):
+    if not check_file(file_name):
+        return
     if xss_on:
         pass
     if sqli_on:
         pass
+
+
+def check_file(file_name):
+    pass
 
 
 def search(what, file_name):
@@ -32,7 +37,7 @@ def sql_injection(name):
 
 
 if __name__ == '__main__':
-    main(name='data/files_to_check/xss&sqli.py')
+    main(file_name='data/files_to_check/xss&sqli.py')
 
 
 
