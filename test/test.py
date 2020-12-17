@@ -8,9 +8,14 @@ import time
 #     print(i[:-1])
 # print(k)
 
-# p, s = input(), open('wow.txt', 'r').readline()
+# p = input()
+# s = open('wow.txt', 'r').readlines()
 # before = time.time()
 # res = s.find(p)
 # after = time.time()
 # print(res, after - before)
 
+# before = time.time()
+# res = sum([len(i) for i in s])
+# after = time.time()
+# print(res, after - before)
