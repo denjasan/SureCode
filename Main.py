@@ -2,21 +2,36 @@
 # ru: тут основные функции поиска вредоносных элементов кода
 # en: here are the main functions for searching for malicious code elements
 
+"""
+About kwargs: every key should be named like the relative function and has bool value
+Example: kwargs = {'general_inspection': True}
+The default value is False
+"""
+
 import os
 
 
 class SureCode:
-    def __init__(self, file_name, xss_on, sqli_on):
+    def __init__(self, file_name, **kwargs):
         self.file_lines = []
-        self.main(file_name=file_name, xss_on=xss_on, sqli_on=sqli_on)
+        self.vulnerabilities = {'general_inspection', 'xss', 'sql_injection'}
+        print(kwargs)
+        self.main(file_name=file_name, **kwargs)
 
-    def main(self, file_name='data/files_to_check/input.py', xss_on=True, sqli_on=True):
-        if not self.check_file(file_name):
+    def main(self, file_name='data/files_to_check/input.py', **kwargs):
+        is_file = self.check_file(file_name)
+        if not is_file[0]:
+            print(is_file[1])  # Errors
             return
-        if xss_on:
-            pass
-        if sqli_on:
-            pass
+
+        what_to_do = self.kwargs_transformation(**kwargs)
+        print(what_to_do)
+        if what_to_do.get('general_inspection', False):
+            print('general_inspection')
+        if what_to_do.get('xss', False):
+            print('xss')
+        if what_to_do.get('sql_injection', False):
+            print('sql_injection')
 
     def check_file(self, file_name):
         """
@@ -25,11 +40,22 @@ class SureCode:
         :param file_name:
         :return: True if file is correct, else False
         """
+        errors = set()
         if os.path.exists(file_name):
             with open(file_name, 'r') as f:
                 self.file_lines = f.readlines()
-            return True
-        return False
+            return True,
+        else:
+            errors.add('Exist')
+        return False, errors
+
+    def kwargs_transformation(self, **kwargs):
+        new_dict = {}
+        for key, value in kwargs.items():
+            print(key == "xss")
+            # if key in self.vulnerabilities:
+            #     new_dict[key] = kwargs.get(key, False)
+        return new_dict
 
     def search(self, what, file_name):
         """ ru: основная функция поиска по алгоритму Р. Боуера и Д. Мура
@@ -54,7 +80,7 @@ class SureCode:
 
 
 if __name__ == '__main__':
-    SureCode(file_name='data/files_to_check/xss&sqli.py')
+    SureCode('data/files_to_check/xss&sqli.py', xxs=True, sql_ingection=True)
 
 
 
