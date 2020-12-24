@@ -81,7 +81,3 @@ class SureCode:
 
 if __name__ == '__main__':
     SureCode('data/files_to_check/xss&sqli.py', xxs=True, sql_ingection=True)
-
-
-
-
