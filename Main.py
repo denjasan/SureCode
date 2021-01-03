@@ -44,7 +44,7 @@ class SureCode:
         if os.path.exists(file_name):
             with open(file_name, 'r') as f:
                 self.file_lines = f.readlines()
-            return True,
+            return True, None
         else:
             errors.add('Exist')
         return False, errors
