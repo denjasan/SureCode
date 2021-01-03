@@ -24,14 +24,15 @@ class SureCode:
             print(is_file[1])  # Errors
             return
 
-        what_to_do = self.kwargs_transformation(**kwargs)
-        print(what_to_do)
-        if what_to_do.get('general_inspection', False):
+        if kwargs.get('general_inspection', False):
             print('general_inspection')
-        if what_to_do.get('xss', False):
+            self.general_inspection(file_name)
+        if kwargs.get('xss', False):
             print('xss')
-        if what_to_do.get('sql_injection', False):
+            self.xss(file_name)
+        if kwargs.get('sql_injection', False):
             print('sql_injection')
+            self.sql_injection(file_name)
 
     def check_file(self, file_name):
         """
@@ -44,34 +45,48 @@ class SureCode:
         if os.path.exists(file_name):
             with open(file_name, 'r') as f:
                 self.file_lines = f.readlines()
-            return True, None
+            return True,
         else:
             errors.add('Exist')
         return False, errors
 
-    def kwargs_transformation(self, **kwargs):
-        new_dict = {}
-        for key, value in kwargs.items():
-            print(key == "xss")
-            # if key in self.vulnerabilities:
-            #     new_dict[key] = kwargs.get(key, False)
-        return new_dict
-
     def search(self, what, file_name):
         """ ru: основная функция поиска по алгоритму Р. Боуера и Д. Мура
         en: the main search function using the algorithm of R. Boyer and J. Moore """
-        for line_number, line in enumerate(self.file_lines):
-            pass
+        for line, s in enumerate(open(file_name, 'r').readlines()):
+            d = {}
+            what += '~'
+            length = len(what)
+            for i in range(length - 3, -1, -1):
+                d[what[i]] = d.get(what[i], length - i - 2)
+            d[what[-1]] = length - 1
+            d[what[-2]] = d.get(what[-2], length - 1)
+            what = what[:-1]
+            elem = what[-1]
+            i = length - 2
+            k = 0
+            la = len(s)
+            while i < la:
+                if s[i] != elem:
+                    i += d.get(s[i], d['~'])
+                else:
+                    if s[i - length + 2:i + 1] == what:
+                        k = i - length + 2
+                        break
+                    i += d[elem]
+            if k:
+                return line + 1
 
-    def general_inspection(self):
+    def general_inspection(self, name):
         """ ru: проверка кода на ненужные элементы
             en: checking the code for unnecessary elements """
         pass
 
-    def xxs(self, name):
-        """ ru: XXS уязвимость
-        en: XXS vulnerability """
-        pass
+    def xss(self, name):
+        """ ru: XSS уязвимость
+        en: XSS vulnerability """
+        what = 'mda'
+        print(self.search(what, name))
 
     def sql_injection(self, name):
         """ ru: SQLi уязвимость
@@ -80,4 +95,4 @@ class SureCode:
 
 
 if __name__ == '__main__':
-    SureCode('data/files_to_check/xss&sqli.py', xxs=True, sql_ingection=True)
+    SureCode('data/files_to_check/xss&sqli.py', xss=True, sql_injection=True)

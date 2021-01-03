@@ -26,3 +26,4 @@ def my_function(**kid):
 
 my_function(fname="Tobias", lname="Refsnes")
 
+print('mew')
