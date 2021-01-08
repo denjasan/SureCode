@@ -15,7 +15,6 @@ class SureCode:
     def __init__(self, file_name, **kwargs):
         self.file_lines = []
         self.vulnerabilities = {'general_inspection', 'xss', 'sql_injection'}
-        print(kwargs)
         self.main(file_name=file_name, **kwargs)
 
     def main(self, file_name='data/files_to_check/input.py', **kwargs):
@@ -50,22 +49,33 @@ class SureCode:
             errors.add('Exist')
         return False, errors
 
-    def search(self, what, file_name):
+    def search(self, what, file_name, new_line=False, end=')'):
         """ ru: основная функция поиска по алгоритму Р. Боуера и Д. Мура
         en: the main search function using the algorithm of R. Boyer and J. Moore """
+        # what = 'print(<all>)'
+        # file_name = 'test.py'
+        # new_line = True
+        # end = ')'
+
+        if new_line:
+            what = what[:what.find('(')]
+
+        can = False
+        res = []
+        d = {}
+        what += '~'
+        length = len(what)
+        for i in range(length - 3, -1, -1):
+            d[what[i]] = d.get(what[i], length - i - 2)
+        d[what[-1]] = length - 1
+        d[what[-2]] = d.get(what[-2], length - 1)
+        what = what[:-1]
+        elem = what[-1]
+
         for line, s in enumerate(open(file_name, 'r').readlines()):
-            d = {}
-            what += '~'
-            length = len(what)
-            for i in range(length - 3, -1, -1):
-                d[what[i]] = d.get(what[i], length - i - 2)
-            d[what[-1]] = length - 1
-            d[what[-2]] = d.get(what[-2], length - 1)
-            what = what[:-1]
-            elem = what[-1]
-            i = length - 2
-            k = 0
             la = len(s)
+            k = -1
+            i = length - 2
             while i < la:
                 if s[i] != elem:
                     i += d.get(s[i], d['~'])
@@ -74,8 +84,18 @@ class SureCode:
                         k = i - length + 2
                         break
                     i += d[elem]
-            if k:
-                return line + 1
+            if k != -1:
+                res.append(line + 1)
+                if new_line and end not in s:
+                    can = True
+            else:
+                if can:
+                    if end in s:
+                        res.append(line + 1)
+                        can = False
+                    else:
+                        res.append(line + 1)
+        return res
 
     def general_inspection(self, name):
         """ ru: проверка кода на ненужные элементы
@@ -85,13 +105,13 @@ class SureCode:
     def xss(self, name):
         """ ru: XSS уязвимость
         en: XSS vulnerability """
-        what = 'mda'
+        what = 'print'
         print(self.search(what, name))
 
     def sql_injection(self, name):
         """ ru: SQLi уязвимость
         en: SQLi vulnerability """
-        pass
+        what = ''
 
 
 if __name__ == '__main__':
