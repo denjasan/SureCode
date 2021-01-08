@@ -111,7 +111,8 @@ class SureCode:
     def sql_injection(self, name):
         """ ru: SQLi уязвимость
         en: SQLi vulnerability """
-        what = ''
+        what = 'execute'
+        print(self.search(what, name))
 
 
 if __name__ == '__main__':

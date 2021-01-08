@@ -69,6 +69,7 @@ def get_user_from_username_and_password(username, password):
     print(username, password)
     # cur.execute('SELECT id, username FROM `user` WHERE username=\'%s\' AND password=\'%s\'' % (username, password))
     cur.execute('SELECT id, username FROM `user` WHERE username = ? AND password = ?', (username, password))
+    # cur.execute("SELECT id, username FROM `user` WHERE username = '" + username + "' AND password = '" + password + "'")
     row = cur.fetchone()
     conn.commit()
     conn.close()
