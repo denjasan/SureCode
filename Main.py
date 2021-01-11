@@ -49,13 +49,20 @@ class SureCode:
             errors.add('Exist')
         return False, errors
 
-    def search(self, what, file_name, new_line=False, end=')'):
+    def search(self, what, file_name, case=False, new_line=False, begin=None, end=None):
         """ ru: основная функция поиска по алгоритму Р. Боуера и Д. Мура
         en: the main search function using the algorithm of R. Boyer and J. Moore """
         # what = 'print(<all>)'
         # file_name = 'test.py'
         # new_line = True
         # end = ')'
+        with open(file_name, 'r') as f:
+            file_lines = f.readlines()
+
+        if case:
+            what = what.lower()
+            for i in range(len(file_lines)):
+                file_lines[i] = file_lines[i].lower()
 
         if new_line:
             what = what[:what.find('(')]
@@ -72,7 +79,7 @@ class SureCode:
         what = what[:-1]
         elem = what[-1]
 
-        for line, s in enumerate(open(file_name, 'r').readlines()):
+        for line, s in enumerate(file_lines):
             la = len(s)
             k = -1
             i = length - 2
@@ -105,18 +112,26 @@ class SureCode:
     def xss(self, name):
         """ ru: XSS уязвимость
         en: XSS vulnerability """
-        what = 'print'
+        what = 'sex'
         print(self.search(what, name))
 
     def sql_injection(self, name):
         """ ru: SQLi уязвимость
         en: SQLi vulnerability """
         can = {
-            'select <all> %s': {'new_line': True, 'end': "'"}
+            'select': {'new_line': True, 'begin': 'execute(', 'end': ")",
+                       'elements': [['%s'], ['" +', "' +", '""" +', '"+', "'+", '"""+'], ['f"', "f'"]]}
         }
-        for what in can:
-            print(self.search(what, name))
+        lines = self.search(what='select', file_name=name, new_line=can['select']['new_line'],
+                            begin=can['select']['begin'], end=can['select']['end'])
+        with open(name, 'r') as f:
+            file_lines = f.readlines()
+        for line in lines:
+            for elem in can['select']['elements']:
+                print(elem)
+                if any([i in file_lines[line - 1] for i in elem]):
+                    print(line)
 
 
 if __name__ == '__main__':
-    SureCode('data/files_to_check/xss&sqli.py', xss=True, sql_injection=True)
+    SureCode('data/files_to_check/xss&sqli.py', general_inspection=False, xss=False, sql_injection=True)
