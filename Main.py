@@ -122,13 +122,12 @@ class SureCode:
             'select': {'new_line': True, 'begin': 'execute(', 'end': ")",
                        'elements': [['%s'], ['" +', "' +", '""" +', '"+', "'+", '"""+'], ['f"', "f'"]]}
         }
-        lines = self.search(what='select', file_name=name, new_line=can['select']['new_line'],
+        lines = self.search(what='select', case=True, file_name=name, new_line=can['select']['new_line'],
                             begin=can['select']['begin'], end=can['select']['end'])
         with open(name, 'r') as f:
             file_lines = f.readlines()
         for line in lines:
             for elem in can['select']['elements']:
-                print(elem)
                 if any([i in file_lines[line - 1] for i in elem]):
                     print(line)
 
