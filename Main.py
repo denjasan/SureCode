@@ -64,12 +64,15 @@ class SureCode:
             for i in range(len(file_lines)):
                 file_lines[i] = file_lines[i].lower()
 
-        if new_line:
-            what = what[:what.find('(')]
+        # if new_line:
+        #     print(what)
+        #     what = what[:what.find('(')]
+        #     print(what)
 
         can = False
         res = []
         d = {}
+        changeable = []
         what += '~'
         length = len(what)
         for i in range(length - 3, -1, -1):
@@ -91,17 +94,21 @@ class SureCode:
                         k = i - length + 2
                         break
                     i += d[elem]
-            if k != -1:
-                res.append(line + 1)
+            if k != -1 and (begin in s or line != 0 and begin in file_lines[line - 1] and
+                            (not res or line + 1 not in res[-1])):
+                if changeable:
+                    res.append(changeable)
+                    changeable = []
                 if new_line and end not in s:
                     can = True
-            else:
-                if can:
-                    if end in s:
-                        res.append(line + 1)
-                        can = False
-                    else:
-                        res.append(line + 1)
+                changeable.append(line + 1)
+            elif can:
+                if end in s:
+                    changeable.append(line + 1)
+                    can = False
+                else:
+                    changeable.append(line + 1)
+
         return res
 
     def general_inspection(self, name):
@@ -118,19 +125,28 @@ class SureCode:
     def sql_injection(self, name):
         """ ru: SQLi уязвимость
         en: SQLi vulnerability """
+        # can = {
+        #     'select': {'new_line': True, 'begin': 'execute(', 'end': ")",
+        #                'elements': [['%s'], ['" +', "' +", '""" +', '"+', "'+", '"""+'], ['f"', "f'"]]}
+        # }
         can = {
             'select': {'new_line': True, 'begin': 'execute(', 'end': ")",
-                       'elements': [['%s'], ['" +', "' +", '""" +', '"+', "'+", '"""+'], ['f"', "f'"]]}
+                       'elements': ['%s', '" +', "' +", '""" +', '"+', "'+", '"""+', 'f"', "f'"]}
         }
-        lines = self.search(what='select', case=True, file_name=name, new_line=can['select']['new_line'],
-                            begin=can['select']['begin'], end=can['select']['end'])
+        lines_list = self.search(what='select', case=True, file_name=name, new_line=can['select']['new_line'],
+                                 begin=can['select']['begin'], end=can['select']['end'])
         with open(name, 'r') as f:
             file_lines = f.readlines()
-        for line in lines:
+
+        res = []
+        print(lines_list)
+        for lines in lines_list:
             for elem in can['select']['elements']:
-                if any([i in file_lines[line - 1] for i in elem]):
-                    print(line)
+                if any([elem in file_lines[line - 1] for line in lines]):
+                    res.append(lines)
+        print(res)
 
 
 if __name__ == '__main__':
     SureCode('data/files_to_check/xss&sqli.py', general_inspection=False, xss=False, sql_injection=True)
+    # SureCode('data/files_to_check/sql.py', general_inspection=False, xss=False, sql_injection=True)

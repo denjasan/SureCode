@@ -68,11 +68,14 @@ def get_user_from_username_and_password(username, password):
     cur = conn.cursor()
     print(username, password)
 
-    cur.execute('select id, username FROM `user` WHERE username=\'%s\' AND password=\'%s\'' % (username, password))
+    # cur.execute(
+    # 'select id, username FROM `user` WHERE username=\'%s\' AND password=\'%s\'' % (username, password)
+    # )
 
     # cur.execute('SELECT id, username FROM `user` WHERE username = ? AND password = ?', (username, password))
 
-    # cur.execute("SELECT id, username FROM `user` WHERE username = '" + username + "' AND password = '" + password + "'")
+    cur.execute("SELECT id, username FROM `user` WHERE username = '"
+                + username + "' AND password = '" + password + "'")
 
     # cur.execute(f'SELECT id, username FROM `user` WHERE username="{username}" AND password="{password}"')
 
@@ -89,7 +92,8 @@ def get_user_from_username_and_password(username, password):
 def get_user_from_id(uid):
     conn = connect_db()
     cur = conn.cursor()
-    cur.execute('SELECT id, username FROM `user` WHERE id=%d' % uid)
+    cur.execute('SELECT id, username FROM `user` WHERE id=%d'
+                % uid)
     row = cur.fetchone()
     conn.commit()
     conn.close()
@@ -210,4 +214,8 @@ def logout():
 if __name__ == '__main__':
     # init()
     app.run(debug=True)
+    select = 'aba' + 'ma'
+    a = 1
+    b = 2
+    a = a + b
 
