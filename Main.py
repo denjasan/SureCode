@@ -51,8 +51,11 @@ class SureCode:
         return False, errors
 
     def search(self, what, case=False, new_line=False, begin=None, end=None):
-        """ ru: основная функция поиска по алгоритму Р. Боуера и Д. Мура
-        en: the main search function using the algorithm of R. Boyer and J. Moore """
+        """
+        ru: основная функция поиска по алгоритму Р. Боуера и Д. Мура
+        en: the main search function using the algorithm of R. Boyer and J. Moore
+        :return: Список списков, содержащий строки вхождения нужного элемента
+        """
         # what = 'print(<all>)'
         # file_name = 'test.py'
         # new_line = True
