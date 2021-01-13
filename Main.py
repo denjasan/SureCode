@@ -9,6 +9,7 @@ The default value is False
 """
 
 import os
+from copy import deepcopy
 
 
 class SureCode:
@@ -49,25 +50,21 @@ class SureCode:
             errors.add('Exist')
         return False, errors
 
-    def search(self, what, file_name, case=False, new_line=False, begin=None, end=None):
+    def search(self, what, case=False, new_line=False, begin=None, end=None):
         """ ru: основная функция поиска по алгоритму Р. Боуера и Д. Мура
         en: the main search function using the algorithm of R. Boyer and J. Moore """
         # what = 'print(<all>)'
         # file_name = 'test.py'
         # new_line = True
         # end = ')'
-        with open(file_name, 'r') as f:
-            file_lines = f.readlines()
 
         if case:
+            file_lines = deepcopy(self.file_lines)
             what = what.lower()
             for i in range(len(file_lines)):
                 file_lines[i] = file_lines[i].lower()
-
-        # if new_line:
-        #     print(what)
-        #     what = what[:what.find('(')]
-        #     print(what)
+        else:
+            file_lines = self.file_lines
 
         can = False
         res = []
@@ -119,7 +116,7 @@ class SureCode:
     def xss(self, name):
         """ ru: XSS уязвимость
         en: XSS vulnerability """
-        what = 'sex'
+        what = 'lol'
         print(self.search(what, name))
 
     def sql_injection(self, name):
@@ -133,16 +130,14 @@ class SureCode:
             'select': {'new_line': True, 'begin': 'execute(', 'end': ")",
                        'elements': ['%s', '" +', "' +", '""" +', '"+', "'+", '"""+', 'f"', "f'"]}
         }
-        lines_list = self.search(what='select', case=True, file_name=name, new_line=can['select']['new_line'],
+        lines_list = self.search(what='select', case=True, new_line=can['select']['new_line'],
                                  begin=can['select']['begin'], end=can['select']['end'])
-        with open(name, 'r') as f:
-            file_lines = f.readlines()
 
         res = []
         print(lines_list)
         for lines in lines_list:
             for elem in can['select']['elements']:
-                if any([elem in file_lines[line - 1] for line in lines]):
+                if any([elem in self.file_lines[line - 1] for line in lines]):
                     res.append(lines)
         print(res)
 
