@@ -66,21 +66,14 @@ def init():
 def get_user_from_username_and_password(username, password):
     conn = connect_db()
     cur = conn.cursor()
-    print(username, password)
 
-    # cur.execute(
-    # 'select id, username FROM `user` WHERE username=\'%s\' AND password=\'%s\'' % (username, password)
-    # )
+    cur.execute('select id, username FROM `user` WHERE username=\'%s\' AND password=\'%s\'' % (username, password))
 
-    # cur.execute('SELECT id, username FROM `user` WHERE username = ? AND password = ?', (username, password))
+    cur.execute('SELECT id, username FROM `user` WHERE username = ? AND password = ?', (username, password))
 
-    cur.execute("SELECT id, username FROM `user` WHERE username = '"
-                + username + "' AND password = '" + password + "'")
+    cur.execute("SEleCt id, username FROM `user` WHERE username = '" + username + "' AND password = '" + password + "'")
 
-    # cur.execute(f'SELECT id, username FROM `user` WHERE username="{username}" AND password="{password}"')
-
-    # a = 'SELECT id, username FROM `user` WHERE username = "' + username + '" AND password = "' + password + '"'
-    # cur.execute(a)
+    cur.execute(f'SELECT id, username FROM `user` WHERE username="{username}" AND password="{password}"')
 
     row = cur.fetchone()
     conn.commit()
@@ -212,7 +205,7 @@ def logout():
 
 
 if __name__ == '__main__':
-    # init()
+    init()
     app.run(debug=True)
     select = 'aba' + 'ma'
     a = 1

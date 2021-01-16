@@ -32,7 +32,7 @@ class SureCode:
             self.xss(file_name)
         if kwargs.get('sql_injection', False):
             print('sql_injection')
-            self.sql_injection(file_name)
+            print(self.sql_injection())
 
     def check_file(self, file_name):
         """
@@ -122,27 +122,44 @@ class SureCode:
         what = 'lol'
         print(self.search(what, name))
 
-    def sql_injection(self, name):
+    def sql_injection(self):
         """ ru: SQLi уязвимость
         en: SQLi vulnerability """
-        # can = {
-        #     'select': {'new_line': True, 'begin': 'execute(', 'end': ")",
-        #                'elements': [['%s'], ['" +', "' +", '""" +', '"+', "'+", '"""+'], ['f"', "f'"]]}
-        # }
         can = {
-            'select': {'new_line': True, 'begin': 'execute(', 'end': ")",
+            'select': {'new_line': True, 'begin': 'execute(', 'end': ")", 'case': True,
                        'elements': ['%s', '" +', "' +", '""" +', '"+', "'+", '"""+', 'f"', "f'"]}
         }
-        lines_list = self.search(what='select', case=True, new_line=can['select']['new_line'],
-                                 begin=can['select']['begin'], end=can['select']['end'])
 
+        lines_list = self.search(what='select', case=can['select']['case'], new_line=can['select']['new_line'],
+                                 begin=can['select']['begin'], end=can['select']['end'])
         res = []
-        print(lines_list)
         for lines in lines_list:
             for elem in can['select']['elements']:
                 if any([elem in self.file_lines[line - 1] for line in lines]):
                     res.append(lines)
-        print(res)
+        return res
+
+    # def sql_injection(self, name):
+    #     """ ru: SQLi уязвимость
+    #     en: SQLi vulnerability """
+    #     # can = {
+    #     #     'select': {'new_line': True, 'begin': 'execute(', 'end': ")",
+    #     #                'elements': [['%s'], ['" +', "' +", '""" +', '"+', "'+", '"""+'], ['f"', "f'"]]}
+    #     # }
+    #     can = {
+    #         'select': {'new_line': True, 'begin': 'execute(', 'end': ")",
+    #                    'elements': ['%s', '" +', "' +", '""" +', '"+', "'+", '"""+', 'f"', "f'"]}
+    #     }
+    #     lines_list = self.search(what='select', case=True, new_line=can['select']['new_line'],
+    #                              begin=can['select']['begin'], end=can['select']['end'])
+    #
+    #     res = []
+    #     print(lines_list)
+    #     for lines in lines_list:
+    #         for elem in can['select']['elements']:
+    #             if any([elem in self.file_lines[line - 1] for line in lines]):
+    #                 res.append(lines)
+    #     print(res)
 
 
 if __name__ == '__main__':

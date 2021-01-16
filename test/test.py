@@ -36,3 +36,22 @@
 
 print('^800)))9(&%s'.lower())
 print('^800)))9(&%s'.upper())
+
+
+def sql_injection(self):
+    """ ru: SQLi уязвимость
+    en: SQLi vulnerability """
+    can = {
+        'select': {'new_line': True, 'begin': 'execute(', 'end': ")",
+                   'elements': ['%s', '" +', "' +", '""" +', '"+', "'+", '"""+', 'f"', "f'"]}
+    }
+    lines_list = self.search(what='select', case=True, new_line=can['select']['new_line'],
+                             begin=can['select']['begin'], end=can['select']['end'])
+
+    res = []
+    for lines in lines_list:
+        for elem in can['select']['elements']:
+            if any([elem in self.file_lines[line - 1] for line in lines]):
+                res.append(lines)
+    return res
+
