@@ -50,7 +50,7 @@ class SureCode:
             errors.add('Exist')
         return False, errors
 
-    def search(self, what, case=False, new_line=False, begin=None, end=None):
+    def search(self, what, case=False, new_line=False, begin=None, end=None, elements=None):
         """
         ru: основная функция поиска по алгоритму Р. Боуера и Д. Мура
         en: the main search function using the algorithm of R. Boyer and J. Moore
@@ -119,8 +119,18 @@ class SureCode:
     def xss(self, name):
         """ ru: XSS уязвимость
         en: XSS vulnerability """
-        what = 'lol'
-        print(self.search(what, name))
+        template = {
+            'render_template_string': {'new_line': True, 'begin': 'return ', 'end': ")", 'elements': None},
+            'render_template': {'new_line': True, 'begin': 'return ', 'end': ")",
+                                'elements': ['.htm', '.xml', '.xhtml']},
+            'render': {'new_line': True, 'begin': '.', 'end': ")", 'elements': None},
+            'def ': {'new_line': True, 'begin': ')\n', 'end': "\ndef ",
+                     'elements': ['return']},
+        }
+        for what in template.keys():
+            lines_list = self.search(what=what, case=False, new_line=template[what]['new_line'],
+                                     begin=template[what]['begin'], end=template[what]['end'])
+            print(lines_list)
 
     def sql_injection(self, name):
         """ ru: SQLi уязвимость
@@ -146,5 +156,5 @@ class SureCode:
 
 
 if __name__ == '__main__':
-    SureCode('data/files_to_check/xss&sqli.py', general_inspection=False, xss=False, sql_injection=True)
+    SureCode('data/files_to_check/xss&sqli.py', general_inspection=False, xss=True, sql_injection=False)
     # SureCode('data/files_to_check/sql.py', general_inspection=False, xss=False, sql_injection=True)
