@@ -29,7 +29,7 @@ class SureCode:
             self.general_inspection(file_name)
         if kwargs.get('xss', False):
             print('xss')
-            self.xss(file_name)
+            self.xss()
         if kwargs.get('sql_injection', False):
             print('sql_injection')
             print(self.sql_injection())
@@ -116,13 +116,13 @@ class SureCode:
             en: checking the code for unnecessary elements """
         pass
 
-    def xss(self, name):
+    def xss(self):
         """ ru: XSS уязвимость
         en: XSS vulnerability """
         template = {
             'render_template_string': {'new_line': True, 'begin': 'return ', 'end': ")", 'elements': None},
             'render_template': {'new_line': True, 'begin': 'return ', 'end': ")",
-                                'elements': ['.htm', '.xml', '.xhtml']},
+                                'elements': ['.htm', '.xml', '.xhtml', '.jinja2']},
             'render': {'new_line': True, 'begin': '.', 'end': ")", 'elements': None},
             'def ': {'new_line': True, 'begin': ')\n', 'end': "\ndef ",
                      'elements': ['return']},
