@@ -29,7 +29,7 @@ class SureCode:
             self.general_inspection(file_name)
         if kwargs.get('xss', False):
             print('xss')
-            self.xss()
+            print(self.xss())
         if kwargs.get('sql_injection', False):
             print('sql_injection')
             print(self.sql_injection())
@@ -56,10 +56,6 @@ class SureCode:
         en: the main search function using the algorithm of R. Boyer and J. Moore
         :return: Список списков, содержащий строки вхождения нужного элемента
         """
-        # what = 'print(<all>)'
-        # file_name = 'test.py'
-        # new_line = True
-        # end = ')'
 
         if case:
             file_lines = deepcopy(self.file_lines)
@@ -68,7 +64,6 @@ class SureCode:
                 file_lines[i] = file_lines[i].lower()
         else:
             file_lines = self.file_lines
-
         can = False
         res = []
         d = {}
@@ -108,7 +103,8 @@ class SureCode:
                     can = False
                 else:
                     changeable.append(line + 1)
-
+        if changeable:
+            res.append(changeable)
         return res
 
     def general_inspection(self, name):
@@ -119,59 +115,56 @@ class SureCode:
     def xss(self):
         """ ru: XSS уязвимость
         en: XSS vulnerability """
-        template = {
-            'render_template_string': {'new_line': True, 'begin': 'return ', 'end': ")", 'elements': None},
+        can = {
+            'render_template_string': {'new_line': True, 'begin': 'return ', 'end': ")"},
             'render_template': {'new_line': True, 'begin': 'return ', 'end': ")",
                                 'elements': ['.htm', '.xml', '.xhtml', '.jinja2']},
-            'render': {'new_line': True, 'begin': '.', 'end': ")", 'elements': None},
-            'def ': {'new_line': True, 'begin': ')\n', 'end': "\ndef ",
-                     'elements': ['return']},
+            'render': {'new_line': True, 'begin': '.', 'end': ")"},
+            'arkup(': {'new_line': True, 'begin': 'M', 'end': ")"},
+            'django': {'new_line': False, 'begin': 'import ', 'end': "\n"},  # https://riptutorial.com/django/example/10041/cross-site-scripting--xss---protection
+            'autoescape false': {'new_line': True, 'begin': '{%', 'end': "endautoescape "},
+            'safe': {'new_line': False, 'begin': '|', 'end': "}"},
         }
-        for what in template.keys():
-            lines_list = self.search(what=what, case=False, new_line=template[what]['new_line'],
-                                     begin=template[what]['begin'], end=template[what]['end'])
-            print(lines_list)
+        res = []
+        result = {}
+        need_elem = {'render_template'}
+        for what in can.keys():
+            lines_list = self.search(what=what, case=False, new_line=can[what]['new_line'],
+                                     begin=can[what]['begin'], end=can[what]['end'])
+            if lines_list:
+                if what in need_elem:
+                    for lines in lines_list:
+                        for elem in can[what]['elements']:
+                            if any([elem in self.file_lines[line - 1] for line in lines]):
+                                res.append(lines)
+                if res:
+                    result[what] = res
+                    res = []
+                else:
+                    result[what] = lines_list
+        return result
 
     def sql_injection(self):
         """ ru: SQLi уязвимость
         en: SQLi vulnerability """
         can = {
-            'select': {'new_line': True, 'begin': 'execute(', 'end': ")", 'case': True,
-                       'elements': ['%s', '" +', "' +", '""" +', '"+', "'+", '"""+', 'f"', "f'"]}
+            'select': {'new_line': True, 'begin': 'execute(', 'end': ")", 'case': True},
+            'delete': {'new_line': True, 'begin': 'execute(', 'end': ")", 'case': True},
+            'insert': {'new_line': True, 'begin': 'execute(', 'end': ")", 'case': True}
         }
 
-        lines_list = self.search(what='select', case=can['select']['case'], new_line=can['select']['new_line'],
-                                 begin=can['select']['begin'], end=can['select']['end'])
+        elements = ['%s', '" +', "' +", '""" +', '"+', "'+", '"""+', 'f"', "f'"]
         res = []
-        for lines in lines_list:
-            for elem in can['select']['elements']:
-                if any([elem in self.file_lines[line - 1] for line in lines]):
-                    res.append(lines)
+        for what in can.keys():
+            lines_list = self.search(what=what, case=can[what]['case'], new_line=can[what]['new_line'],
+                                     begin=can[what]['begin'], end=can[what]['end'])
+            for lines in lines_list:
+                for elem in elements:
+                    if any([elem in self.file_lines[line - 1] for line in lines]):
+                        res.append(lines)
         return res
-
-    # def sql_injection(self, name):
-    #     """ ru: SQLi уязвимость
-    #     en: SQLi vulnerability """
-    #     # can = {
-    #     #     'select': {'new_line': True, 'begin': 'execute(', 'end': ")",
-    #     #                'elements': [['%s'], ['" +', "' +", '""" +', '"+', "'+", '"""+'], ['f"', "f'"]]}
-    #     # }
-    #     can = {
-    #         'select': {'new_line': True, 'begin': 'execute(', 'end': ")",
-    #                    'elements': ['%s', '" +', "' +", '""" +', '"+', "'+", '"""+', 'f"', "f'"]}
-    #     }
-    #     lines_list = self.search(what='select', case=True, new_line=can['select']['new_line'],
-    #                              begin=can['select']['begin'], end=can['select']['end'])
-    #
-    #     res = []
-    #     print(lines_list)
-    #     for lines in lines_list:
-    #         for elem in can['select']['elements']:
-    #             if any([elem in self.file_lines[line - 1] for line in lines]):
-    #                 res.append(lines)
-    #     print(res)
 
 
 if __name__ == '__main__':
-    SureCode('data/files_to_check/xss&sqli.py', general_inspection=False, xss=True, sql_injection=False)
+    SureCode('data/files_to_check/xss&sqli.py', general_inspection=False, xss=True, sql_injection=True)
     # SureCode('data/files_to_check/sql.py', general_inspection=False, xss=False, sql_injection=True)

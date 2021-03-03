@@ -211,4 +211,21 @@ if __name__ == '__main__':
     a = 1
     b = 2
     a = a + b
+    b = 'SELECT id, username FROM `user` WHERE id='
+
+
+"""
+{{ myvariable|safe }}
+
+
+{% autoescape false %}
+    <p>autoescaping is disabled here
+    <p>{{ will_not_be_escaped }}
+{% endautoescape %}
+
+
+return render_template("unsafe.jinja2")
+
+"""
+
 
