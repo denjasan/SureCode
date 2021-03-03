@@ -4,7 +4,7 @@
 
 """
 About kwargs: every key should be named like the relative function and has bool value
-Example: kwargs = {'general_inspection': True}
+Example: kwargs = {'xss': True}
 The default value is False
 """
 
@@ -15,27 +15,15 @@ from copy import deepcopy
 class SureCode:
     def __init__(self, file_name, **kwargs):
         self.file_lines = []
-        self.vulnerabilities = {'general_inspection': {}, 'xss': {}, 'sql_injection': {}}
-        self.description = {'render_template_string': "Use render_template() instead of render_template_string()",
-                            'render_template': "Only use .html extensions for templates",
-                            'Template': "Use render_template()",
-                            '.Template': "Use render_template()",
-                            'arkup(': "Don't use Markup():",
-                            'django': "Use django.utils.html.format_html",
-                            'autoescape false': "Don't disable the autoescape system in templates",
-                            'safe': "Don't mark a string as safe HTML",
-                            'sql_injection': "Use '?' when adding variables to an SQL query. For example:\
-            \ncur.execute('SELECT id, username FROM `user` WHERE username = ? AND password = ?', (username, password))"}
+        self.vulnerabilities = {'xss': {}, 'sql_injection': {}}
         self.main(file_name=file_name, **kwargs)
 
-    def main(self, file_name='data/files_to_check/input.py', **kwargs):
+    def main(self, file_name='data/files_to_check/xss&sqli.py', **kwargs):
         is_file = self.check_file(file_name)
         if not is_file[0]:
             print(is_file[1])  # Errors
             return
 
-        if kwargs.get('general_inspection', False):
-            self.vulnerabilities['general_inspection'] = self.general_inspection()
         if kwargs.get('xss', False):
             self.vulnerabilities['xss'] = self.xss()
         if kwargs.get('sql_injection', False):
@@ -54,7 +42,7 @@ class SureCode:
                 self.file_lines = f.readlines()
             return True,
         else:
-            errors.add('Exist')
+            errors.add("File doesn't exist in the specified directory")
         return False, errors
 
     def search(self, what, case=False, new_line=False, begin=None, end=None):
@@ -114,21 +102,6 @@ class SureCode:
             res.append(changeable)
         return res
 
-    def general_inspection(self):
-        """ ru: проверка кода на ненужные элементы
-            en: checking the code for unnecessary elements """
-        can = {
-            'select': {'new_line': False, 'begin': '=', 'end': "", 'case': True},
-            'delete': {'new_line': False, 'begin': '=', 'end': "", 'case': True},
-            'insert': {'new_line': False, 'begin': '=', 'end': "", 'case': True},
-            'render': {'new_line': False, 'begin': '=', 'end': "", 'case': False}
-        }
-        lines_list = []
-        for what in can.keys():
-            lines_list += self.search(what=what, case=can[what]['case'], new_line=can[what]['new_line'],
-                                      begin=can[what]['begin'], end=can[what]['end'])
-        return {'general_inspection': lines_list}
-
     def xss(self):
         """ ru: XSS уязвимость
         en: XSS vulnerability """
@@ -140,7 +113,6 @@ class SureCode:
             '.Template': {'new_line': True, 'begin': 'jinja2', 'end': ""},
             'arkup(': {'new_line': True, 'begin': 'M', 'end': ")"},
             'django': {'new_line': False, 'begin': 'import ', 'end': "\n"},
-        # https://riptutorial.com/django/example/10041/cross-site-scripting--xss---protection
             'autoescape false': {'new_line': True, 'begin': '{%', 'end': "endautoescape "},
             'safe': {'new_line': False, 'begin': '|', 'end': "}"},
         }
@@ -185,12 +157,23 @@ class SureCode:
 
 
 if __name__ == '__main__':
-    ob = SureCode('data/files_to_check/xss&sqli.py', general_inspection=False, xss=True, sql_injection=True)
+    ob = SureCode('data/files_to_check/input.py', general_inspection=False, xss=True, sql_injection=True)
+    description = {'render_template_string': "Use render_template() instead of render_template_string()",
+                   'render_template': "Only use .html extensions for templates",
+                   'Template': "Use render_template()",
+                   '.Template': "Use render_template()",
+                   'arkup(': "Don't use Markup():",
+                   'django': "Use django.utils.html.format_html",
+                   'autoescape false': "Don't disable the autoescape system in templates",
+                   'safe': "Don't mark a string as safe HTML",
+                   'sql_injection': "Use '?' when adding variables to an SQL query. For example:\
+            \ncur.execute('SELECT id, username FROM `user` WHERE username = ? AND password = ?', (username, password))"}
+
     print('')
     for vulnerability in ob.vulnerabilities.keys():
         print(vulnerability, ':', sep='')
         for j in ob.vulnerabilities[vulnerability].keys():
             print(j, ob.vulnerabilities[vulnerability][j])
-            print('Description:', ob.description[j])
+            print('Description:', description[j])
             print('____________')
         print('__________________________________________________________')
