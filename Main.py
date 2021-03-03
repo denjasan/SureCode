@@ -15,7 +15,7 @@ from copy import deepcopy
 class SureCode:
     def __init__(self, file_name, **kwargs):
         self.file_lines = []
-        self.vulnerabilities = {'general_inspection', 'xss', 'sql_injection'}
+        self.vulnerabilities = {'general_inspection': {}, 'xss': {}, 'sql_injection': {}}
         self.main(file_name=file_name, **kwargs)
 
     def main(self, file_name='data/files_to_check/input.py', **kwargs):
@@ -25,14 +25,17 @@ class SureCode:
             return
 
         if kwargs.get('general_inspection', False):
-            print('general_inspection')
-            self.general_inspection(file_name)
+            # print('general_inspection')
+            # print(self.general_inspection())
+            self.vulnerabilities['general_inspection'] = self.general_inspection()
         if kwargs.get('xss', False):
-            print('xss')
-            print(self.xss())
+            # print('xss')
+            # print(self.xss())
+            self.vulnerabilities['xss'] = self.xss()
         if kwargs.get('sql_injection', False):
-            print('sql_injection')
-            print(self.sql_injection())
+            # print('sql_injection')
+            # print(self.sql_injection())
+            self.vulnerabilities['sql_injection'] = self.sql_injection()
 
     def check_file(self, file_name):
         """
@@ -50,7 +53,7 @@ class SureCode:
             errors.add('Exist')
         return False, errors
 
-    def search(self, what, case=False, new_line=False, begin=None, end=None, elements=None):
+    def search(self, what, case=False, new_line=False, begin=None, end=None):
         """
         ru: основная функция поиска по алгоритму Р. Боуера и Д. Мура
         en: the main search function using the algorithm of R. Boyer and J. Moore
@@ -107,10 +110,20 @@ class SureCode:
             res.append(changeable)
         return res
 
-    def general_inspection(self, name):
+    def general_inspection(self):
         """ ru: проверка кода на ненужные элементы
             en: checking the code for unnecessary elements """
-        pass
+        can = {
+            'select': {'new_line': False, 'begin': '=', 'end': "", 'case': True},
+            'delete': {'new_line': False, 'begin': '=', 'end': "", 'case': True},
+            'insert': {'new_line': False, 'begin': '=', 'end': "", 'case': True},
+            'render': {'new_line': False, 'begin': '=', 'end': "", 'case': False}
+        }
+        lines_list = []
+        for what in can.keys():
+            lines_list += self.search(what=what, case=can[what]['case'], new_line=can[what]['new_line'],
+                                      begin=can[what]['begin'], end=can[what]['end'])
+        return {'general_inspection': lines_list}
 
     def xss(self):
         """ ru: XSS уязвимость
@@ -118,8 +131,9 @@ class SureCode:
         can = {
             'render_template_string': {'new_line': True, 'begin': 'return ', 'end': ")"},
             'render_template': {'new_line': True, 'begin': 'return ', 'end': ")",
-                                'elements': ['.htm', '.xml', '.xhtml', '.jinja2']},
-            'render': {'new_line': True, 'begin': '.', 'end': ")"},
+                                'elements': ['.htm)', '.xml', '.xhtml', '.jinja2']},
+            'Template': {'new_line': True, 'begin': 'from', 'end': ""},
+            '.Template': {'new_line': True, 'begin': 'jinja2', 'end': ""},
             'arkup(': {'new_line': True, 'begin': 'M', 'end': ")"},
             'django': {'new_line': False, 'begin': 'import ', 'end': "\n"},  # https://riptutorial.com/django/example/10041/cross-site-scripting--xss---protection
             'autoescape false': {'new_line': True, 'begin': '{%', 'end': "endautoescape "},
@@ -140,7 +154,7 @@ class SureCode:
                 if res:
                     result[what] = res
                     res = []
-                else:
+                elif what not in need_elem:
                     result[what] = lines_list
         return result
 
@@ -162,9 +176,9 @@ class SureCode:
                 for elem in elements:
                     if any([elem in self.file_lines[line - 1] for line in lines]):
                         res.append(lines)
-        return res
+        return {'sql_injection': res}
 
 
 if __name__ == '__main__':
     SureCode('data/files_to_check/xss&sqli.py', general_inspection=False, xss=True, sql_injection=True)
-    # SureCode('data/files_to_check/sql.py', general_inspection=False, xss=False, sql_injection=True)
+    # SureCode('data/files_to_check/input.py', general_inspection=False, xss=True, sql_injection=True)

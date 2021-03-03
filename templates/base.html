@@ -1,126 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet"
-          href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-          crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-    <title>SureCode</title>
-    <style>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Отправка файла на сервер</title>
+    </head>
+    <body>
+        <form enctype="multipart/form-data" method="post">
+            <p><input type="file" class="form-control-file" name="file">
+            <input type="submit" value="Отправить"></p>
+        </form>
 
-        header {
-            margin-left: 0;
-            font-family: "Verdana";
-            font-weight: 450;
-        }
-
-        .dws-menu {
-            margin: 0;
-            padding: 0;
-        }
-
-        .dws-menu ul,
-        .dws-menu ol {
-            list-style: none;
-        }
-
-        .dws-menu > ul {
-            display: flex;
-            justify-content: center;
-        }
-
-        .dws-menu > ul li a{
-            display: block;
-            background: #fff;
-            padding: 15px 30px 15px 40px;
-            font-size: 14px;
-            color: #696969;
-            text-decoration: none;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-        }
-
-         .dws-menu > ul li {
-            position: relative;
-            border-right: 1px solid #696969;
-        }
-
-        .dws-menu > ul li:first-child {
-            border-left: 1px solid #696969;
-        }
-
-        .dws-menu > ul li:last-child {
-            border-left: 1px solid #696969;
-        }
-
-        .dws-menu li a:hover {
-            background: #696969;
-            color: #fff;
-            box-shadow: 1px 5px 10px -5px black;
-            transition: all 0.3s ease;
-        }
-
-        .dws-menu li ul {
-            margin: 0;
-            padding: 0;
-            position: absolute;
-            min-width: 150px;
-            display: none;
-
-        }
-
-        .dws-menu li > ul li {
-            margin: 0;
-            padding: 0;
-            border: 1px solid #696969;
-        }
-
-        .dws-menu li > ul li a {
-            padding: 10px;
-            text-transform: none;
-        }
-
-        .dws-menu li:hover > ul {
-            display: block;
-        }
-
-
-        .h_1 {
-            border: 1px solid black;
-        }
-
-        .content_1 {
-            width: 75%;
-            background: #fff;
-        }
-
-        .for_some_note {
-            display: block-inline;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <nav class="dws-menu">
-            <ul>
-                <li>
-                    <a href="#" class="fa fa-">Sure Code</a>
-                </li>
-            </ul>
-        </nav>
-    </header>
-<main role="main">
-    <a class="btn btn-dark" href="/logout">Выйти</a><br><br>
-        <div class="card text-white bg-secondary mb-3" style="max-width: 18rem;">
-            <div class="card-header"><img class="card-img-top" src={{pic}} alt="Фото профиля." style="border-radius: 25%; width: 50px; height: 50px" align="bottom">
-                <a class="btn btn-warning" href="/profile" data-toggle="tooltip" data-placement="bottom" title="Редактировать профиль">{{session["user_name"]}}</a></div>
+        <center>
+            <div class="card bg-light mb-3" style="max-width: 18rem;">
+              <div>
+                <p>xss:
+                    {% for what in keys %}
+                        {{ what }}: {{ data.xss.what }}
+                    {% endfor %}
+                </p>
+                <p>sql_injection: {{ data.sql_injection.sql_injection }}</p>
+              </div>
             </div>
-<div class="row">
-    <br><br><br>
-</div>
-</main>
-</body>
+
+        </center>
+
+    </body>
 </html>
