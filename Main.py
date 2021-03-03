@@ -16,6 +16,16 @@ class SureCode:
     def __init__(self, file_name, **kwargs):
         self.file_lines = []
         self.vulnerabilities = {'general_inspection': {}, 'xss': {}, 'sql_injection': {}}
+        self.description = {'render_template_string': "Use render_template() instead of render_template_string()",
+                            'render_template': "Only use .html extensions for templates",
+                            'Template': "Use render_template()",
+                            '.Template': "Use render_template()",
+                            'arkup(': "Don't use Markup():",
+                            'django': "Use django.utils.html.format_html",
+                            'autoescape false': "Don't disable the autoescape system in templates",
+                            'safe': "Don't mark a string as safe HTML",
+                            'sql_injection': "Use '?' when adding variables to an SQL query. For example:\
+            \ncur.execute('SELECT id, username FROM `user` WHERE username = ? AND password = ?', (username, password))"}
         self.main(file_name=file_name, **kwargs)
 
     def main(self, file_name='data/files_to_check/input.py', **kwargs):
@@ -25,16 +35,10 @@ class SureCode:
             return
 
         if kwargs.get('general_inspection', False):
-            # print('general_inspection')
-            # print(self.general_inspection())
             self.vulnerabilities['general_inspection'] = self.general_inspection()
         if kwargs.get('xss', False):
-            # print('xss')
-            # print(self.xss())
             self.vulnerabilities['xss'] = self.xss()
         if kwargs.get('sql_injection', False):
-            # print('sql_injection')
-            # print(self.sql_injection())
             self.vulnerabilities['sql_injection'] = self.sql_injection()
 
     def check_file(self, file_name):
@@ -135,7 +139,8 @@ class SureCode:
             'Template': {'new_line': True, 'begin': 'from', 'end': ""},
             '.Template': {'new_line': True, 'begin': 'jinja2', 'end': ""},
             'arkup(': {'new_line': True, 'begin': 'M', 'end': ")"},
-            'django': {'new_line': False, 'begin': 'import ', 'end': "\n"},  # https://riptutorial.com/django/example/10041/cross-site-scripting--xss---protection
+            'django': {'new_line': False, 'begin': 'import ', 'end': "\n"},
+        # https://riptutorial.com/django/example/10041/cross-site-scripting--xss---protection
             'autoescape false': {'new_line': True, 'begin': '{%', 'end': "endautoescape "},
             'safe': {'new_line': False, 'begin': '|', 'end': "}"},
         }
@@ -180,5 +185,12 @@ class SureCode:
 
 
 if __name__ == '__main__':
-    SureCode('data/files_to_check/xss&sqli.py', general_inspection=False, xss=True, sql_injection=True)
-    # SureCode('data/files_to_check/input.py', general_inspection=False, xss=True, sql_injection=True)
+    ob = SureCode('data/files_to_check/xss&sqli.py', general_inspection=False, xss=True, sql_injection=True)
+    print('')
+    for vulnerability in ob.vulnerabilities.keys():
+        print(vulnerability, ':', sep='')
+        for j in ob.vulnerabilities[vulnerability].keys():
+            print(j, ob.vulnerabilities[vulnerability][j])
+            print('Description:', ob.description[j])
+            print('____________')
+        print('__________________________________________________________')
