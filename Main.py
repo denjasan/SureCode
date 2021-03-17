@@ -11,6 +11,17 @@ The default value is False
 import os
 from copy import deepcopy
 
+description = {'render_template_string': "Use render_template() instead of render_template_string()",
+               'render_template': "Only use .html extensions for templates",
+               'Template': "Use render_template()",
+               '.Template': "Use render_template()",
+               'arkup(': "Don't use Markup():",
+               'django': "Use django.utils.html.format_html",
+               'autoescape false': "Don't disable the autoescape system in templates",
+               'safe': "Don't mark a string as safe HTML",
+               'sql_injection': "Use '?' when adding variables to an SQL query. For example:\
+            \ncur.execute('SELECT id, username FROM `user` WHERE username = ? AND password = ?', (username, password))"}
+
 
 class SureCode:
     def __init__(self, file_name, **kwargs):
@@ -158,17 +169,6 @@ class SureCode:
 
 if __name__ == '__main__':
     ob = SureCode('data/files_to_check/input.py', general_inspection=False, xss=True, sql_injection=True)
-    description = {'render_template_string': "Use render_template() instead of render_template_string()",
-                   'render_template': "Only use .html extensions for templates",
-                   'Template': "Use render_template()",
-                   '.Template': "Use render_template()",
-                   'arkup(': "Don't use Markup():",
-                   'django': "Use django.utils.html.format_html",
-                   'autoescape false': "Don't disable the autoescape system in templates",
-                   'safe': "Don't mark a string as safe HTML",
-                   'sql_injection': "Use '?' when adding variables to an SQL query. For example:\
-            \ncur.execute('SELECT id, username FROM `user` WHERE username = ? AND password = ?', (username, password))"}
-
     print('')
     for vulnerability in ob.vulnerabilities.keys():
         print(vulnerability, ':', sep='')

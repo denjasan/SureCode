@@ -12,12 +12,15 @@
 
         <center>
             <div class="card bg-light mb-3" style="max-width: 18rem;">
-              <div>
-                <p>xss:
-                    {{ data.xss }}
-                </p>
-                <p>sql_injection: {{ data.sql_injection.sql_injection }}</p>
-              </div>
+                    <div> XSS: </div>
+                        <div> {{ data.xss.all }} </div>
+                        <div> ____________ </div>
+                    <div> SQL_injection: </div>
+                        <div> {{ data.sql_injection.all }} </div>
+                        <div> ____________ </div>
+                    <div> Description: </div>
+                        <div> {{ description }} </div>
+                        <div> ____________ </div>
             </div>
 
         </center>
